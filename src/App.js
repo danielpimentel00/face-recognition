@@ -26,8 +26,6 @@ export default function EditSesion() {
 
   function readmultifiles(e, indexInicial) {
     const files = e.currentTarget.files;
-
-    //el array con las imagenes nuevas
     const arrayImages = [];
 
     Object.keys(files).forEach((i) => {
