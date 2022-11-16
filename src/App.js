@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { Buffer } from "buffer";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css";
-import { readFileData, compareFaces } from "./utils/helper-functions.utils";
+import { readFileData } from "./utils/helper-functions.utils";
 
 export default function EditSesion() {
   const [images, setimages] = useState([]);
@@ -10,8 +11,18 @@ export default function EditSesion() {
   const changeInput = (e) => {
     const file = e.target.files[0];
 
-    readFileData(file).then((res) => {
-      compareFaces(res);
+    readFileData(file).then(async (res) => {
+      const byteArr = Buffer.from(res).toString("base64");
+
+      const response = await fetch("/.netlify/functions/compare-faces", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ decodedBytes: byteArr }),
+      }).then((res) => res.json());
+
+      console.log(response);
     });
 
     //esto es el indice que se le dará a cada imagen, a partir del indice de la ultima foto

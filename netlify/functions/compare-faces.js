@@ -1,4 +1,4 @@
-import AWS from "aws-sdk";
+const AWS = require("aws-sdk");
 require("dotenv").config();
 
 new AWS.Config({
@@ -14,7 +14,16 @@ AWS.config.update({
 const client = new AWS.Rekognition();
 const s3 = new AWS.S3();
 
-exports.handler = async (imageAsBytes) => {
+exports.handler = async (event) => {
+  const { decodedBytes } = JSON.parse(event.body);
+
+  const image = Buffer.from(decodedBytes, "base64").toJSON().data;
+
+  var imageBuffer = new Uint8Array(image.length);
+  for (var i = 0; i < imageBuffer.length; i++) {
+    imageBuffer[i] = image[i];
+  }
+
   let match = false;
   try {
     const bucketParams = {
@@ -30,7 +39,7 @@ exports.handler = async (imageAsBytes) => {
     for (const imgKey of imageKeys) {
       const paramsForFaceComparison = {
         SourceImage: {
-          Bytes: imageAsBytes,
+          Bytes: imageBuffer,
         },
         TargetImage: {
           S3Object: {
