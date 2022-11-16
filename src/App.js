@@ -2,11 +2,20 @@ import React, { useState } from "react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css";
+import { readFileData, compareFaces } from "./utils/helper-functions.utils";
 
 export default function EditSesion() {
   const [images, setimages] = useState([]);
 
   const changeInput = (e) => {
+    const file = e.target.files[0];
+
+    readFileData(file).then((res) => {
+      // const data = res.substring(res.indexOf(",") + 1);
+      console.log(Buffer.from("SGVsbG8gV29ybGQ=", "base64").toString("binary"));
+      compareFaces(res);
+    });
+
     //esto es el indice que se le dará a cada imagen, a partir del indice de la ultima foto
     let indexImg;
 
@@ -38,7 +47,7 @@ export default function EditSesion() {
         index: indexInicial,
         name: file.name,
         url,
-        file
+        file,
       });
 
       indexInicial++;
@@ -64,7 +73,7 @@ export default function EditSesion() {
       {/* INPUT IMAGES */}
       <label className="btn btn-warning">
         <span>Seleccionar archivos </span>
-        <input hidden type="file" multiple onChange={changeInput}></input>
+        <input hidden type="file" onChange={changeInput}></input>
       </label>
 
       {/* VIEW IMAGES */}
