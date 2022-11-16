@@ -12,6 +12,7 @@ AWS.config.update({
   secretAccessKey: "zRUTRIJgTROJGLvAKe3XRIPpK7roCbfqKu4stz8h", //process.env.REACT_APP_AWS_SECRET_KEY,
 }); //process.env.REACT_APP_AWS_REGION });
 const client = new AWS.Rekognition();
+const s3 = new AWS.S3();
 
 export const readFileData = (file) => {
   return new Promise((resolve, reject) => {
@@ -25,35 +26,53 @@ export const readFileData = (file) => {
       reject(err);
     };
 
-    reader.readAsDataURL(file);
+    reader.readAsArrayBuffer(file);
   });
 };
 
 export const compareFaces = async (imageAsBytes) => {
-  const paramsForFaceComparison = {
-    SourceImage: {
-      Bytes: imageAsBytes,
-    },
-    TargetImage: {
-      S3Object: {
-        Bucket: "prog-web-facial-recognition",
-        Name: "image1.jpeg",
-      },
-    },
-    SimilarityThreshold: 70,
-  };
+  let response = 0;
+  try {
+    const bucketParams = {
+      Bucket: "prog-web-facial-recognition",
+    };
 
-  client.compareFaces(paramsForFaceComparison, function (err, response) {
-    if (err) {
-      console.log(err, err.stack);
-    } else {
-      response.FaceMatches.forEach((data) => {
-        let position = data.Face.BoundingBox;
-        let similarity = data.Similarity;
-        console.log(
-          `The face at: ${position.Left}, ${position.Top} matches with ${similarity} % confidence`
-        );
-      });
+    const listObjectsRequest = s3.listObjects(bucketParams).promise();
+
+    const objectsResponse = await listObjectsRequest;
+
+    const imageKeys = objectsResponse.Contents?.map((x) => x.Key);
+
+    for (const imgKey of imageKeys) {
+      const paramsForFaceComparison = {
+        SourceImage: {
+          Bytes: imageAsBytes,
+        },
+        TargetImage: {
+          S3Object: {
+            Bucket: "prog-web-facial-recognition",
+            Name: imgKey,
+          },
+        },
+        SimilarityThreshold: 70,
+      };
+
+      const faceComparisonRequest = client
+        .compareFaces(paramsForFaceComparison)
+        .promise();
+
+      const faceMatchResponse = await faceComparisonRequest;
+
+      if (faceMatchResponse.FaceMatches.length) {
+        response = 1;
+        break;
+      }
     }
-  });
+    console.log(response);
+    return response;
+  } catch (error) {
+    response = 2;
+    console.log("Error", response);
+    return response;
+  }
 };

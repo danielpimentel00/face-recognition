@@ -11,8 +11,6 @@ export default function EditSesion() {
     const file = e.target.files[0];
 
     readFileData(file).then((res) => {
-      // const data = res.substring(res.indexOf(",") + 1);
-      console.log(Buffer.from("SGVsbG8gV29ybGQ=", "base64").toString("binary"));
       compareFaces(res);
     });
 
