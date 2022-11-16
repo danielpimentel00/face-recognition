@@ -2,14 +2,14 @@ const AWS = require("aws-sdk");
 require("dotenv").config();
 
 new AWS.Config({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
-  region: process.env.AWS_REG,
+  accessKeyId: process.env.MY_AWS_ACCESS_KEY,
+  secretAccessKey: process.env.MY_AWS_SECRET_KEY,
+  region: process.env.MY_AWS_REG,
 });
 AWS.config.update({
-  region: process.env.AWS_REG,
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: process.env.MY_AWS_REG,
+  accessKeyId: process.env.MY_AWS_ACCESS_KEY,
+  secretAccessKey: process.env.MY_AWS_SECRET_KEY,
 });
 const client = new AWS.Rekognition();
 const s3 = new AWS.S3();
@@ -27,7 +27,7 @@ exports.handler = async (event) => {
   let match = false;
   try {
     const bucketParams = {
-      Bucket: "prog-web-facial-recognition",
+      Bucket: process.env.MY_AWS_BUCKET_NAME,
     };
 
     const listObjectsRequest = s3.listObjects(bucketParams).promise();
