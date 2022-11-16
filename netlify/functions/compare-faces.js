@@ -4,10 +4,10 @@ require("dotenv").config();
 new AWS.Config({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REG,
 });
 AWS.config.update({
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REG,
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_KEY,
 });
